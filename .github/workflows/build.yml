@@ -1,9 +1,9 @@
-name: Hosting Static Website
+name: cicd-demo
 
 on:
   push:
     branches:
-      - 'main'
+      - '*'
 jobs:
   build:
     name: Build Job
@@ -47,10 +47,11 @@ jobs:
           oci setup repair-file-permissions --file /home/runner/.oci/oci_api_key.pem
       - name: 'Deploy Into Object Storage'
         run: |
-          oci os object bulk-delete  -bn ${{secrets.OCI_BUCKET}}  --prefix static --force
+          oci os object bulk-delete -ns ${{secrets.OCI_BUCKET_NAMESPACE}}  -bn ${{secrets.OCI_BUCKET}}  --prefix static --force
           oci os object put -bn ${{secrets.OCI_BUCKET}} --file ./build/manifest.json --content-type application/json --force
           oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type text/html --include *.html --overwrite
           oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type image/jpeg --include *.jpg --overwrite
           oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type text/javascript --include *.js --overwrite
+          oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type application/pdf --include *.pdf --overwrite
           oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type text/css --include *.css --overwrite
-          oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type text/plain --exclude *.js --exclude *.html --exclude *.jpg --exclude *.css --exclude ./build/manifest.json --overwrite
+          oci os object bulk-upload -bn ${{secrets.OCI_BUCKET}} --src-dir ./build --content-type text/plain --exclude *.js --exclude *.html --exclude *.jpg --exclude *.pdf --exclude *.css --exclude ./build/manifest.json --overwrite
