@@ -3,7 +3,7 @@ name: Hosting Static Website
 on:
   push:
     branches:
-      - '*'
+      - 'main'
 jobs:
   build:
     name: Build Job
